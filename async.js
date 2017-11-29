@@ -14,6 +14,7 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
     let result = [];
     let countStartedJobs = 0;
     let countFinishedJobs = 0;
+    
     return new Promise(resolve => {
         if (!jobs.length) {
             resolve([]);
@@ -26,11 +27,11 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
     function runJob(job, resolve) {
         let handler = jobResult => finishJob(jobResult, job, resolve);
 
-        return new Promise((resolve, reject) => {
-            jobs[job]().then(resolve, reject);
-            setTimeout(() => reject(new Error('Promise timeout')), timeout);
+        return new Promise((timeResolve, timeReject) => {
+            jobs[job]().then(timeResolve, timeReject);
+            setTimeout(() => timeReject(new Error('Promise timeout')), timeout);
         }).then(handler)
-        .catch(handler);
+            .catch(handler);
     }
 
     function finishJob(jobResult, job, resolve) {
